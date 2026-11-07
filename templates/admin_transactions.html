@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+<h1>💳 Transactions</h1><p class="sub">Toutes les opérations de la banque.</p>
+<div class="card">
+<div style="margin-bottom:14px">
+<a class="btn small {{ '' if not kind else 'gray' }}" href="{{ url_for('admin_transactions') }}">Toutes</a>
+{% for k in ['virement','depot','retrait','ajustement'] %}<a class="btn small {{ '' if kind == k else 'gray' }}" href="{{ url_for('admin_transactions', kind=k) }}">{{ k|capitalize }}</a> {% endfor %}</div>
+{% if txs %}<table><tr><th>Date</th><th>Type</th><th>De</th><th>Vers</th><th>Montant</th></tr>{% include "_tx_rows.html" %}</table>
+{% else %}<p>Aucune transaction.</p>{% endif %}</div>
+{% endblock %}

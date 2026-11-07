@@ -1,0 +1,17 @@
+{% extends "public.html" %}
+{% block title %}Enrôler cet appareil{% endblock %}
+{% block head %}<script src="{{ url_for('static', filename='device.js') }}" defer></script>{% endblock %}
+{% block content %}
+<div class="card form-box" style="max-width:520px"><h1>🔑 Enrôler cet appareil</h1>
+<p class="sub">Ce navigateur va générer une clé privée ECDSA <b>non-extractable</b>. Elle ne quittera jamais cet appareil.</p>
+<div id="secure-warning" class="flash error" hidden>WebCrypto indisponible : ouvrez la page en HTTPS ou via http://127.0.0.1.</div>
+<div id="enroll-out"></div>
+<form id="enroll-form" data-url="{{ url_for('device_enroll') }}">
+<label>Nom d'utilisateur administrateur</label><input name="username" required autocomplete="username">
+<label>Mot de passe</label><input type="password" name="password" required autocomplete="current-password">
+<label>Code d'enrôlement (affiché dans le terminal du serveur)</label><input name="code" required placeholder="XXXX-XXXX-XXXX" class="mono">
+<label>Nom de l'appareil</label><input name="label" value="PC Kali - Firefox" maxlength="40">
+<button class="green" type="submit">Générer la clé et enrôler</button></form>
+<p class="hint">Le code est à usage unique et expire après 30 minutes. Il se génère au démarrage du serveur ou avec
+<code>flask --app app enroll-code admin</code>.</p></div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Historique{% endblock %}
+{% block content %}
+<h1>📜 Historique</h1><p class="sub">Toutes vos opérations.</p>
+<div class="card">{% if txs %}<table><tr><th>Date</th><th>Type</th><th>De</th><th>Vers</th><th>Montant</th></tr>{% include "_tx_rows.html" %}</table>
+{% else %}<p>Aucune opération.</p>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Rapport d'attaque #{{ report.id }}{% endblock %}
+{% block content %}
+<h1>Rapport d'attaque #{{ report.id }}</h1>
+<p class="sub">Synthèse de l'activité factice et du contexte de connexion.</p>
+<div class="stats three">
+<div class="card"><small>Compte ciblé</small><b>{{ report.username }}</b></div>
+<div class="card"><small>IP source</small><b class="mono big">{{ report.ip }}</b></div>
+<div class="card"><small>Actions journalisées</small><b>{{ report.event_count }}</b></div>
+</div>
+<div class="card"><h2>Chronologie</h2>
+<p>Début : {{ payload.started_at }} · Fin : {{ payload.ended_at }} · Durée : {{ payload.duration_seconds }} secondes</p>
+<p><b>Adresse bloquée après expiration :</b> {{ 'Oui' if payload.ip_blacklisted else 'Non' }}</p>
+<h3>Pages et actions visitées</h3>
+{% if payload.pages_and_actions %}<ul>{% for page in payload.pages_and_actions %}<li><code>{{ page }}</code></li>{% endfor %}</ul>{% else %}<p>Aucune page visitée enregistrée.</p>{% endif %}
+<h3>Événements du honeypot</h3>
+{% if payload.honeypot_events %}<table><tr><th>Date</th><th>Événement</th><th>Détails</th></tr>
+{% for event in payload.honeypot_events %}<tr><td>{{ event.ts }}</td><td>{{ event.event }}</td><td>{{ event.details }}</td></tr>{% endfor %}</table>{% else %}<p>Aucune action enregistrée avant expiration.</p>{% endif %}
+</div>
+<div class="card"><h2>JSON complet</h2><pre>{{ report.report_json }}</pre></div>
+<a class="btn gray" href="{{ url_for('admin_reports') }}">Retour aux rapports</a>
+{% endblock %}

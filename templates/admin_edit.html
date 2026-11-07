@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Client {{ user.username }}{% endblock %}
+{% block content %}
+<h1>Client : {{ user.username }}</h1>
+<p class="sub">Solde : {{ '%.2f'|format(user.balance) }} DT · <span class="badge {{ 'on' if user.active else 'off' }}">{{ 'Actif' if user.active else 'Bloqué' }}</span>
+{% if user.locked %}<span class="badge off">🔒 Verrouillé (échecs de connexion)</span>{% endif %}</p>
+<div class="card"><h2>RIB</h2><p class="mono big">{{ rib }}</p></div>
+<div class="grid2">
+<div class="card"><h2>Email</h2><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="email">
+<input type="email" name="email" value="{{ user.email }}" required><button type="submit">Enregistrer</button></form></div>
+<div class="card"><h2>Ajuster le solde</h2><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="balance">
+<label>Opération</label><select name="sign"><option value="credit">Ajouter de l'argent</option><option value="debit">Retirer de l'argent</option></select>
+<label>Montant (DT)</label><input type="number" name="amount" step="0.01" min="0.01" required><button class="green" type="submit">Valider</button></form></div>
+<div class="card"><h2>Réinitialiser le mot de passe</h2><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="password">
+<input type="password" name="new" placeholder="Nouveau mot de passe" required minlength="8" autocomplete="new-password"><button type="submit">Réinitialiser</button></form></div>
+<div class="card"><h2>Actions</h2>
+<form class="inline" method="post" action="{{ url_for('admin_toggle', uid=user.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="orange">{{ 'Bloquer le compte' if user.active else 'Débloquer le compte' }}</button></form>
+{% if user.locked %}<form class="inline" method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="unlock"><button class="green">Déverrouiller</button></form>{% endif %}
+<form class="inline" method="post" action="{{ url_for('admin_delete', uid=user.id) }}" data-confirm="Supprimer ce client ?"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="red">Supprimer le client</button></form>
+<a class="btn gray" href="{{ url_for('admin_users') }}">← Retour</a></div></div>
+<div class="card"><h2>Dernières opérations du client</h2>
+{% if txs %}<table><tr><th>Date</th><th>Type</th><th>De</th><th>Vers</th><th>Montant</th></tr>{% include "_tx_rows.html" %}</table>{% else %}<p>Aucune opération.</p>{% endif %}</div>
+{% endblock %}

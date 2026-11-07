@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">{% endblock %}
+{% block content %}
+{% set ns = namespace(inn=0, out=0) %}
+{% for t in txs %}
+  {% if t.kind == 'depot' or (t.kind != 'retrait' and t.receiver == me.username) %}{% set ns.inn = ns.inn + t.amount %}
+  {% else %}{% set ns.out = ns.out + t.amount %}{% endif %}
+{% endfor %}
+<div class="home">
+
+  <header class="home-head">
+    <div>
+      <p class="eyebrow">Espace client</p>
+      <h1>Bonjour, {{ me.username }}</h1>
+    </div>
+    <span class="chip-ok"><i></i>Compte actif</span>
+  </header>
+
+  <section class="account-card">
+    <div class="ac-top">
+      <div>
+        <span class="ac-label">Compte courant</span>
+        <span class="ac-sub">Solde disponible</span>
+      </div>
+      <svg class="ac-logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 3 10v2h26v-2L16 3zm-10 11v9h3v-9H6zm6 0v9h3v-9h-3zm6 0v9h3v-9h-3zm6 0v9h3v-9h-3zM3 25v3h26v-3H3z"/></svg>
+    </div>
+    <div class="ac-amount">{{ '%.2f'|format(me.balance) }}<small>DT</small></div>
+    <div class="ac-foot">
+      <div><span>Titulaire</span><b>{{ me.username }}</b></div>
+      <div><span>Client depuis</span><b>{{ me.created_at[:10] }}</b></div>
+      <div><span>Devise</span><b>TND</b></div>
+    </div>
+  </section>
+
+  <section class="quick">
+    <a href="{{ url_for('transfer') }}">
+      <span class="qi"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+      <b>Virement</b><small>Envoyer de l'argent</small></a>
+    <a href="{{ url_for('deposit') }}">
+      <span class="qi"><svg viewBox="0 0 24 24"><path d="M12 4v12m0 0-4-4m4 4 4-4M5 20h14"/></svg></span>
+      <b>Dépôt</b><small>Alimenter le compte</small></a>
+    <a href="{{ url_for('withdraw') }}">
+      <span class="qi"><svg viewBox="0 0 24 24"><path d="M12 20V8m0 0-4 4m4-4 4 4M5 4h14"/></svg></span>
+      <b>Retrait</b><small>Retirer des fonds</small></a>
+    <a href="{{ url_for('history') }}">
+      <span class="qi"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4"/></svg></span>
+      <b>Historique</b><small>Toutes les opérations</small></a>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Dernières opérations</h2>
+      <a href="{{ url_for('history') }}">Tout voir →</a>
+    </div>
+
+    {% if txs %}
+    <div class="summary">
+      <div><span>Entrées récentes</span><b class="in">+ {{ '%.2f'|format(ns.inn) }} DT</b></div>
+      <div><span>Sorties récentes</span><b class="out">− {{ '%.2f'|format(ns.out) }} DT</b></div>
+    </div>
+    <ul class="ops">
+      {% for t in txs %}
+        {% set incoming = (t.kind == 'depot') or (t.kind != 'retrait' and t.receiver == me.username) %}
+        <li>
+          <span class="op-ico {{ 'in' if incoming else 'out' }}">
+            {% if incoming %}<svg viewBox="0 0 24 24"><path d="M12 5v14m0 0 5-5m-5 5-5-5"/></svg>
+            {% else %}<svg viewBox="0 0 24 24"><path d="M12 19V5m0 0-5 5m5-5 5 5"/></svg>{% endif %}
+          </span>
+          <div class="op-main">
+            <b>{{ {'depot':'Dépôt','retrait':'Retrait','virement':'Virement','ajustement':'Ajustement'}.get(t.kind, t.kind|capitalize) }}</b>
+            <small>
+              {% if t.kind == 'virement' %}{{ ('De ' ~ t.sender) if incoming else ('Vers ' ~ t.receiver) }}
+              {% elif t.kind == 'depot' %}Versement sur le compte
+              {% elif t.kind == 'retrait' %}Retrait d'espèces
+              {% else %}{{ t.sender }} → {{ t.receiver }}{% endif %}
+            </small>
+          </div>
+          <span class="op-date">{{ t.ts }}</span>
+          <span class="op-amt {{ 'in' if incoming else 'out' }}">{{ '+' if incoming else '−' }} {{ '%.2f'|format(t.amount) }} DT</span>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">Aucune opération pour le moment.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

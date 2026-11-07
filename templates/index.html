@@ -1,0 +1,146 @@
+{% extends "public.html" %}
+{% block title %}Banque en ligne — Votre banque, simplement{% endblock %}
+{% block head %}
+<style>
+/* Thème bleu marine et bleu ciel — page d'accueil publique uniquement (n'affecte ni connexion, ni inscription, ni comptes) */
+.pub-top{display:none}
+.pub-main{max-width:none;margin:0;padding:0}
+body{background:#fff}
+.lp{--navy:#0b2545;--navy2:#13447a;--gold:#4db8ff;--ink:#102a43;--muted:#5a6e85;--line:#dbe8f5;color:var(--ink)}
+.lp a{text-decoration:none}
+.lp-hero h1,.lp-sec h2{font-weight:700}
+.lp .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* barre du haut */
+.lp-nav{background:#fff;border-bottom:1px solid var(--line)}
+.lp-nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.lp-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;color:var(--navy);letter-spacing:-.01em}
+.lp-logo svg{width:30px;height:30px;fill:var(--gold)}
+.lp-links{display:flex;align-items:center;gap:26px}
+.lp-links a{color:var(--navy);font-weight:600;font-size:15px}
+.lp-links a:hover{color:var(--gold)}
+.lp-links .cta{background:var(--navy);color:#fff;padding:10px 20px;border-radius:10px}
+.lp-links .cta:hover{background:var(--navy2);color:#fff}
+
+/* hero */
+.lp-hero{background:radial-gradient(circle at 85% 15%,rgba(77,184,255,.30),transparent 45%),
+  linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff}
+.lp-hero .wrap{max-width:820px;text-align:center;padding-top:90px;padding-bottom:100px}
+.lp-eyebrow{display:inline-block;color:var(--gold);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
+.lp-hero h1{font-size:50px;line-height:1.08;letter-spacing:-.02em;margin:0 0 18px;color:#fff}
+.lp-hero h1 em{font-style:normal;color:var(--gold)}
+.lp-hero p{font-size:18px;line-height:1.6;color:rgba(255,255,255,.78);margin:0 auto 32px;max-width:560px}
+.lp-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.lp-btn{display:inline-block;padding:15px 28px;border-radius:12px;font-weight:700;font-size:16px;transition:.18s}
+.lp-btn.gold{background:var(--gold);color:var(--navy)}
+.lp-btn.gold:hover{background:#7accff;transform:translateY(-2px)}
+.lp-btn.ghost{border:1.5px solid rgba(255,255,255,.45);color:#fff}
+.lp-btn.ghost:hover{background:rgba(255,255,255,.1)}
+.lp-trust{display:flex;gap:26px;margin-top:38px;flex-wrap:wrap;justify-content:center;color:rgba(255,255,255,.7);font-size:14px}
+.lp-trust span{display:flex;align-items:center;gap:8px}
+.lp-trust svg{width:18px;height:18px;fill:none;stroke:var(--gold);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* services */
+.lp-sec{padding:80px 0}
+.lp-sec h2{font-size:34px;letter-spacing:-.01em;color:var(--navy);margin:0 0 10px;text-align:center}
+.lp-sec .lead{text-align:center;color:var(--muted);font-size:17px;margin:0 auto 46px;max-width:620px}
+.lp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.lp-feat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;transition:.18s}
+.lp-feat:hover{border-color:var(--gold);box-shadow:0 12px 28px rgba(11,37,69,.10);transform:translateY(-3px)}
+.lp-ico{display:grid;place-items:center;width:50px;height:50px;border-radius:14px;background:#e8f4ff;margin-bottom:16px}
+.lp-ico svg{width:24px;height:24px;fill:none;stroke:var(--navy2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lp-feat h3{margin:0 0 8px;font-size:18px;color:var(--navy)}
+.lp-feat p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.55}
+
+/* sécurité */
+.lp-sec.alt{background:#f1f8ff}
+.lp-secu{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.lp-secu div{background:#fff;border-radius:16px;padding:26px;border-left:4px solid var(--gold);box-shadow:0 2px 10px rgba(11,37,69,.05)}
+.lp-secu b{display:block;color:var(--navy);font-size:17px;margin-bottom:6px}
+.lp-secu p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.55}
+
+/* appel final + pied */
+.lp-final{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;text-align:center;padding:70px 24px}
+.lp-final h2{color:#fff;font-size:32px;margin:0 0 12px}
+.lp-final p{color:rgba(255,255,255,.75);margin:0 0 28px;font-size:17px}
+.lp-foot{background:#061a33;color:rgba(255,255,255,.55);text-align:center;padding:22px;font-size:13.5px}
+.lp .flash{max-width:1120px;margin:16px auto 0}
+
+@media(max-width:900px){
+  .lp-hero .wrap{padding-top:50px;padding-bottom:56px}
+  .lp-hero h1{font-size:38px}
+  .lp-grid{grid-template-columns:1fr 1fr}.lp-secu{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .lp-grid{grid-template-columns:1fr}.lp-links a:not(.cta){display:none}
+  .lp-hero h1{font-size:32px}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lp">
+
+  <nav class="lp-nav"><div class="wrap">
+    <a class="lp-logo" href="{{ url_for('index') }}">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 3 10v2h26v-2L16 3zm-10 11v9h3v-9H6zm6 0v9h3v-9h-3zm6 0v9h3v-9h-3zm6 0v9h3v-9h-3zM3 25v3h26v-3H3z"/></svg>
+      Banque en ligne</a>
+    <div class="lp-links">
+      <a href="#services">Services</a>
+      <a href="#securite">Sécurité</a>
+      <a href="{{ url_for('login') }}">Connexion</a>
+      <a class="cta" href="{{ url_for('register') }}">Ouvrir un compte</a>
+    </div>
+  </div></nav>
+
+  <section class="lp-hero"><div class="wrap">
+    <div>
+      <span class="lp-eyebrow">Banque digitale</span>
+      <h1>Votre banque, <em>simple</em> et sécurisée.</h1>
+      <p>Consultez votre solde, faites des virements, des dépôts et des retraits en quelques clics, où que vous soyez.</p>
+      <div class="lp-btns">
+        <a class="lp-btn gold" href="{{ url_for('register') }}">Ouvrir un compte</a>
+        <a class="lp-btn ghost" href="{{ url_for('login') }}">Se connecter</a>
+      </div>
+      <div class="lp-trust">
+        <span><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>Connexion chiffrée</span>
+        <span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Données protégées</span>
+        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Disponible 24h/24</span>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec" id="services"><div class="wrap">
+    <h2>Tout votre quotidien bancaire</h2>
+    <p class="lead">Les opérations essentielles, accessibles à tout moment depuis votre espace client.</p>
+    <div class="lp-grid">
+      <div class="lp-feat"><div class="lp-ico"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></div>
+        <h3>Virements</h3><p>Envoyez de l'argent à un autre client en quelques secondes.</p></div>
+      <div class="lp-feat"><div class="lp-ico"><svg viewBox="0 0 24 24"><path d="M12 4v12m0 0-4-4m4 4 4-4M5 20h14"/></svg></div>
+        <h3>Dépôts</h3><p>Alimentez votre compte simplement et suivez votre solde en direct.</p></div>
+      <div class="lp-feat"><div class="lp-ico"><svg viewBox="0 0 24 24"><path d="M12 20V8m0 0-4 4m4-4 4 4M5 4h14"/></svg></div>
+        <h3>Retraits</h3><p>Retirez vos fonds selon votre solde disponible, sans démarche compliquée.</p></div>
+      <div class="lp-feat"><div class="lp-ico"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4"/></svg></div>
+        <h3>Historique</h3><p>Retrouvez toutes vos opérations, claires et classées par date.</p></div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec alt" id="securite"><div class="wrap">
+    <h2>Votre sécurité, notre priorité</h2>
+    <p class="lead">Des protections modernes pour garder votre argent et vos informations à l'abri.</p>
+    <div class="lp-secu">
+      <div><b>Mots de passe protégés</b><p>Vos mots de passe sont stockés sous forme hachée, jamais en clair.</p></div>
+      <div><b>Données chiffrées</b><p>Les informations sensibles, comme votre RIB, sont chiffrées en base de données.</p></div>
+      <div><b>Surveillance active</b><p>Les comportements suspects sont détectés et signalés à l'administrateur.</p></div>
+    </div>
+  </div></section>
+
+  <section class="lp-final">
+    <h2>Prêt à commencer ?</h2>
+    <p>Ouvrez votre compte en moins d'une minute.</p>
+    <a class="lp-btn gold" href="{{ url_for('register') }}">Ouvrir un compte</a>
+  </section>
+
+  <footer class="lp-foot">© Banque en ligne — Projet académique de sécurité</footer>
+</div>
+{% endblock %}

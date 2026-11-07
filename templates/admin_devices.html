@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Appareils de confiance{% endblock %}
+{% block head %}<script src="{{ url_for('static', filename='device.js') }}" defer></script>{% endblock %}
+{% block content %}
+<h1>🔑 Appareils de confiance</h1>
+<p class="sub">Seuls ces navigateurs peuvent ouvrir le vrai tableau de bord. Tout autre accès avec votre mot de passe mène au honeypot.</p>
+
+<div class="card"><h2>Mes clés enrôlées</h2>
+{% if keys %}<table><tr><th>Appareil</th><th>Empreinte</th><th>Créée le</th><th>Dernière utilisation</th><th>État</th><th></th></tr>
+{% for k in keys %}<tr><td>{{ k.label }}</td><td class="mono">{{ k.fingerprint }}</td><td>{{ k.created_at }}</td><td>{{ k.last_used or '—' }}</td>
+<td><span class="badge {{ 'off' if k.revoked else 'on' }}">{{ 'Révoquée' if k.revoked else 'Active' }}</span></td>
+<td>{% if not k.revoked %}<form class="inline" method="post" data-confirm="Révoquer cette clé ?"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="revoke"><input type="hidden" name="id" value="{{ k.id }}"><button class="small red">Révoquer</button></form>{% endif %}</td></tr>{% endfor %}</table>
+{% else %}<p>Aucune clé.</p>{% endif %}</div>
+
+<div class="grid2">
+<div class="card"><h2>Tester la protection de la clé</h2>
+<p>Essaie d'exporter la clé privée stockée dans ce navigateur (ce que ferait un malware JavaScript).</p>
+<button id="test-extract" data-user="{{ me.username }}" type="button">🧪 Tenter d'extraire la clé privée</button>
+<div id="extract-out" style="margin-top:12px"></div></div>
+<div class="card"><h2>Ajouter un autre navigateur</h2>
+<p>Génère un code à usage unique ({{ ttl }} min), puis ouvrez <code>/device/enroll</code> sur le nouveau navigateur.</p>
+{% if code %}<p class="flash ok">Code : <b class="mono big">{{ code }}</b></p>{% endif %}
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="code"><button class="green" type="submit">Générer un code d'enrôlement</button></form></div>
+</div>
+{% endblock %}

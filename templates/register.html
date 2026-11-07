@@ -1,0 +1,13 @@
+{% extends "public.html" %}
+{% block title %}Inscription{% endblock %}
+{% block content %}
+<div class="card form-box"><h1>Inscription</h1><p class="sub">Créez votre compte client.</p>
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<label>Nom d'utilisateur</label><input name="username" value="{{ form.get('username','') }}" required minlength="3" maxlength="20" autocomplete="username">
+<label>Email</label><input type="email" name="email" value="{{ form.get('email','') }}" required autocomplete="email">
+<label>Mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password">
+<p class="hint">8 caractères min. avec majuscule, minuscule, chiffre et caractère spécial.</p>
+<label>Confirmer le mot de passe</label><input type="password" name="confirm" required autocomplete="new-password">
+<button type="submit">Créer mon compte</button></form>
+<p>Déjà inscrit ? <a href="{{ url_for('login') }}">Se connecter</a></p></div>
+{% endblock %}

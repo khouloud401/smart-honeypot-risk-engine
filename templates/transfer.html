@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Virement{% endblock %}
+{% block content %}
+<h1>💸 Faire un virement</h1><p class="sub">Solde actuel : {{ '%.2f'|format(me.balance) }} DT</p>
+<div class="card" style="max-width:520px"><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<label>Destinataire</label>
+<select name="to" required><option value="">-- choisir un client --</option>
+{% for o in others %}<option value="{{ o.username }}">{{ o.username }}</option>{% endfor %}</select>
+<label>Montant (DT)</label><input type="number" name="amount" step="0.01" min="0.01" required>
+<button class="green" type="submit">Envoyer</button>
+<a class="btn gray" href="{{ url_for('dashboard') }}">Annuler</a></form></div>
+{% endblock %}

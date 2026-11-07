@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+<h1>📊 Tableau de bord administrateur</h1><p class="sub">Vue d'ensemble de la banque.</p>
+{% if unread_alerts %}<a class="alert-banner" href="{{ url_for('admin_security') }}">🚨 {{ unread_alerts }} alerte(s) de sécurité non lue(s) — voir le centre de sécurité</a>{% endif %}
+<div class="stats">
+<div class="card"><small>Clients</small><b>{{ stats.clients }}</b></div>
+<div class="card"><small>Comptes actifs / bloqués</small><b>{{ stats.actifs }} / {{ stats.bloques }}</b></div>
+<div class="card"><small>Argent total</small><b>{{ '%.0f'|format(stats.total) }} DT</b></div>
+<div class="card"><small>Transactions</small><b>{{ stats.tx }}</b></div></div>
+<div class="actions">
+<a class="action" href="{{ url_for('admin_users') }}"><span>👥</span>Gérer les clients</a>
+<a class="action" href="{{ url_for('admin_users') }}#ajouter"><span>➕</span>Ajouter un client</a>
+<a class="action" href="{{ url_for('admin_transactions') }}"><span>💳</span>Voir les transactions</a>
+<a class="action" href="{{ url_for('profile') }}"><span>⚙️</span>Mon profil</a></div>
+<div class="grid2">
+<div class="card"><h2>Derniers clients</h2>
+<table><tr><th>Nom</th><th>Solde</th><th></th></tr>
+{% for u in newest %}<tr><td>{{ u.username }}</td><td>{{ '%.2f'|format(u.balance) }} DT</td>
+<td><a class="btn small" href="{{ url_for('admin_edit', uid=u.id) }}">Gérer</a></td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Dernières transactions</h2>
+<table><tr><th>Date</th><th>Type</th><th>De</th><th>Vers</th><th>Montant</th></tr>{% include "_tx_rows.html" %}</table></div></div>
+{% endblock %}

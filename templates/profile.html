@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Mon profil{% endblock %}
+{% block content %}
+<h1>⚙️ Mon profil</h1><p class="sub">Compte créé le {{ me.created_at }}</p>
+{% if rib %}<div class="card"><h2>Mon RIB</h2><p class="mono big">{{ rib }}</p>
+<p class="hint">Stocké chiffré en base (AES-256-GCM), déchiffré uniquement pour l'affichage.</p></div>{% endif %}
+<div class="grid2">
+<div class="card"><h2>Mon email</h2><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="email">
+<label>Nom d'utilisateur</label><input value="{{ me.username }}" disabled>
+<label>Email</label><input type="email" name="email" value="{{ me.email }}" required>
+<button type="submit">Enregistrer</button></form></div>
+<div class="card"><h2>Changer le mot de passe</h2><form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="password">
+<label>Ancien mot de passe</label><input type="password" name="old" required autocomplete="current-password">
+<label>Nouveau mot de passe</label><input type="password" name="new" required minlength="8" autocomplete="new-password">
+<label>Confirmer</label><input type="password" name="confirm" required autocomplete="new-password">
+<button type="submit">Modifier</button></form></div></div>
+<div class="card"><h2>Mes sessions</h2><p>Sessions ouvertes : <b>{{ sessions_count }}</b>. Déconnexion automatique après 15 min d'inactivité.</p>
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="logout_all">
+<button class="orange" type="submit">Déconnecter mes autres appareils</button></form></div>
+{% endblock %}

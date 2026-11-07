@@ -1,0 +1,12 @@
+{% extends "public.html" %}
+{% block title %}Connexion…{% endblock %}
+{% block head %}<script src="{{ url_for('static', filename='device.js') }}" defer></script>{% endblock %}
+{% block content %}
+<div class="card form-box" style="text-align:center" id="device-verify"
+     data-challenge-url="{{ url_for('device_challenge') }}" data-verify-url="{{ url_for('device_verify') }}">
+<div class="spinner"></div>
+<h1>Connexion en cours…</h1>
+<p class="sub">Préparation de votre espace sécurisé.</p>
+<noscript><p class="flash error">JavaScript est nécessaire pour terminer la connexion.</p></noscript>
+</div>
+{% endblock %}

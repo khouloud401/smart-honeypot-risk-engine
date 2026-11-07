@@ -1,0 +1,3 @@
+{% for t in txs %}
+<tr><td>{{ t.ts }}</td><td><span class="badge k">{{ t.kind }}</span></td><td>{{ t.sender }}</td><td>{{ t.receiver }}</td><td>{{ '%.2f'|format(t.amount) }} DT</td></tr>
+{% endfor %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Centre de sécurité{% endblock %}
+{% block content %}
+<h1>🛡️ Centre de sécurité</h1><p class="sub">Alertes, événements du honeypot, journal et sessions actives.</p>
+
+<div class="stats six">
+<div class="card"><small>🚨 Alertes non lues</small><b>{{ stats.alerts }}</b></div>
+<div class="card"><small>✅ Connexions (24 h)</small><b>{{ stats.login_ok }}</b></div>
+<div class="card"><small>❌ Échecs (24 h)</small><b>{{ stats.login_fail }}</b></div>
+<div class="card"><small>🍯 Événements honeypot</small><b>{{ stats.honeypot }}</b></div>
+<div class="card"><small>🔒 Comptes verrouillés</small><b>{{ stats.locked }}</b></div>
+<div class="card"><small>🟢 Sessions actives</small><b>{{ stats.sessions }}</b></div>
+</div>
+
+<div class="grid2">
+<div class="card"><h2>⛔ IP bloquées ({{ stats.blacklisted }})</h2>
+{% if blacklist %}<table><tr><th>IP</th><th>Motif</th><th>Depuis</th><th></th></tr>
+{% for item in blacklist %}<tr><td class="mono">{{ item.ip }}</td><td>{{ item.reason }}</td><td>{{ fmt(item.created_at) }}</td><td><form method="post" action="{{ url_for('admin_blacklist_remove') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="ip" value="{{ item.ip }}"><button class="small gray">Débloquer</button></form></td></tr>{% endfor %}
+</table>{% else %}<p>Aucune IP bloquée.</p>{% endif %}</div>
+<div class="card"><div class="head-row"><h2>📄 Rapports d'attaque ({{ stats.reports }})</h2><a class="btn small" href="{{ url_for('admin_reports') }}">Tous les rapports</a></div>
+{% if reports %}<table><tr><th>#</th><th>Date</th><th>Compte ciblé</th><th>IP</th><th>Événements</th></tr>
+{% for r in reports %}<tr><td><a href="{{ url_for('admin_report_detail', report_id=r.id) }}">#{{ r.id }}</a></td><td>{{ fmt(r.started_at) }}</td><td>{{ r.username }}</td><td class="mono">{{ r.ip }}</td><td>{{ r.event_count }}</td></tr>{% endfor %}</table>
+{% else %}<p>Aucun rapport généré.</p>{% endif %}</div>
+</div>
+
+<div class="card"><div class="head-row"><h2>🚨 Alertes</h2>
+{% if stats.alerts %}<form method="post" action="{{ url_for('admin_alerts_read') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="small gray">Tout marquer comme lu</button></form>{% endif %}</div>
+{% if alerts %}<table><tr><th>Date</th><th>Gravité</th><th>Alerte</th><th>Compte</th><th>IP</th><th></th></tr>
+{% for a in alerts %}<tr class="{{ '' if a.seen else 'unread' }}"><td>{{ a.ts }}</td><td><span class="badge sev-{{ a.severity }}">{{ a.severity }}</span></td>
+<td><b>{{ a.title }}</b><br><small>{{ a.details }}</small></td><td>{{ a.username }}</td><td>{{ a.ip }}</td>
+<td>{% if not a.seen %}<form method="post" action="{{ url_for('admin_alerts_read') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ a.id }}"><button class="small">Lu</button></form>{% endif %}</td></tr>{% endfor %}</table>
+{% else %}<p>Aucune alerte.</p>{% endif %}</div>
+
+<div class="card"><h2>🍯 Activité dans le honeypot</h2>
+<p class="hint">Ce que l'intrus a fait en croyant être sur le vrai tableau de bord.</p>
+{% if hp_events %}<table class="log"><tr><th>Date</th><th>Événement</th><th>Compte</th><th>IP</th><th>Détails</th></tr>
+{% for l in hp_events %}<tr><td>{{ l.ts }}</td><td><span class="badge sev-{{ l.severity }}">{{ l.event }}</span></td><td>{{ l.username }}</td><td>{{ l.ip }}</td><td>{{ l.details }}</td></tr>{% endfor %}</table>
+{% else %}<p>Aucun intrus pour le moment.</p>{% endif %}</div>
+
+<div class="card"><h2>🟢 Sessions actives</h2>
+{% if sessions %}<table><tr><th>#</th><th>Compte</th><th>Type</th><th>IP</th><th>Navigateur</th><th>Ouverte</th><th>Dernière activité</th><th></th></tr>
+{% for s in sessions %}<tr><td>{{ s.id }}</td><td>{{ s.username }}</td>
+<td>{% if s.honeypot %}<span class="badge sev-critical">🍯 honeypot</span>{% elif s.device_verified %}<span class="badge on">🔑 appareil vérifié</span>{% else %}<span class="badge k">client</span>{% endif %}</td>
+<td>{{ s.ip }}</td><td><small>{{ s.ua[:45] }}</small></td><td>{{ fmt(s.created) }}</td><td>{{ fmt(s.last_seen) }}</td>
+<td><form method="post" action="{{ url_for('admin_revoke_session', sid=s.id) }}" data-confirm="Révoquer cette session ?"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="small red">Révoquer</button></form></td></tr>{% endfor %}</table>
+{% else %}<p>Aucune session active.</p>{% endif %}</div>
+
+<div class="card"><h2>📋 Journal de sécurité</h2>
+<form class="bar" method="get"><div><label>Filtrer par événement</label>
+<select name="event"><option value="">Tous</option>{% for e in events %}<option value="{{ e }}" {{ 'selected' if e == event }}>{{ e }}</option>{% endfor %}</select></div>
+<button type="submit">Filtrer</button></form>
+<table class="log"><tr><th>#</th><th>Date</th><th>Événement</th><th>Compte</th><th>IP</th><th>Détails</th></tr>
+{% for l in logs %}<tr><td>{{ l.id }}</td><td>{{ l.ts }}</td><td><span class="badge sev-{{ l.severity }}">{{ l.event }}</span></td><td>{{ l.username }}</td><td>{{ l.ip }}</td><td>{{ l.details }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

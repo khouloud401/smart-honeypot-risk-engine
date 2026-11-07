@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h1>👥 Clients</h1><p class="sub">Ajouter, modifier, bloquer ou supprimer un client.</p>
+<div class="card" id="ajouter"><details {{ 'open' if request.args.get('new') }}><summary>➕ Ajouter un client</summary>
+<form method="post" class="grid2" style="margin-top:8px"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+<div><label>Nom d'utilisateur</label><input name="username" required></div>
+<div><label>Email</label><input type="email" name="email" required></div>
+<div><label>Mot de passe</label><input type="password" name="password" required minlength="8"></div>
+<div><label>Solde de départ (DT)</label><input type="number" name="balance" step="0.01" min="0" value="0"></div>
+<div><button class="green" type="submit">Créer le client</button></div></form></details></div>
+<div class="card">
+<form class="bar" method="get"><div><label>Rechercher</label><input name="q" value="{{ q }}" placeholder="nom ou email"></div>
+<button type="submit">🔍 Chercher</button>{% if q %}<a class="btn gray small" href="{{ url_for('admin_users') }}">Effacer</a>{% endif %}</form>
+{% if users %}<table><tr><th>ID</th><th>Nom</th><th>Email</th><th>Solde</th><th>État</th><th>Actions</th></tr>
+{% for u in users %}<tr><td>{{ u.id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td><td>{{ '%.2f'|format(u.balance) }} DT</td>
+<td><span class="badge {{ 'on' if u.active else 'off' }}">{{ 'Actif' if u.active else 'Bloqué' }}</span></td>
+<td><a class="btn small" href="{{ url_for('admin_edit', uid=u.id) }}">Modifier</a>
+<form class="inline" method="post" action="{{ url_for('admin_toggle', uid=u.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="small orange">{{ 'Bloquer' if u.active else 'Débloquer' }}</button></form>
+<form class="inline" method="post" action="{{ url_for('admin_delete', uid=u.id) }}" data-confirm="Supprimer {{ u.username }} ?"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="small red">Supprimer</button></form></td></tr>{% endfor %}</table>
+{% else %}<p>Aucun client trouvé.</p>{% endif %}</div>
+{% endblock %}

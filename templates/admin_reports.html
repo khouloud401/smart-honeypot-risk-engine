@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Rapports d'attaque{% endblock %}
+{% block content %}
+<h1>Rapports d'attaque</h1>
+<p class="sub">Rapports générés à la fin des sessions honeypot (5 minutes).</p>
+<div class="card">
+{% if reports %}<table><tr><th>#</th><th>Début</th><th>Fin</th><th>Compte ciblé</th><th>IP</th><th>Événements</th><th></th></tr>
+{% for r in reports %}<tr><td>#{{ r.id }}</td><td>{{ fmt(r.started_at) }}</td><td>{{ fmt(r.ended_at) }}</td><td>{{ r.username }}</td><td class="mono">{{ r.ip }}</td><td>{{ r.event_count }}</td><td><a class="btn small" href="{{ url_for('admin_report_detail', report_id=r.id) }}">Ouvrir</a></td></tr>{% endfor %}</table>
+{% else %}<p>Aucun rapport disponible. Les rapports sont créés après l'expiration d'une session honeypot.</p>{% endif %}
+</div>
+{% endblock %}

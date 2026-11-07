@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Intégrité{% endblock %}
+{% block content %}
+<h1>🔏 Intégrité des données</h1>
+<p class="sub">Chaque transaction porte un sceau HMAC-SHA256 ; le journal de sécurité est chaîné par HMAC.</p>
+
+<div class="stats three">
+<div class="card {{ 'bad' if bad else 'good' }}"><small>Transactions (HMAC)</small><b>{{ total - bad|length }} / {{ total }}</b><span>{{ '❌ falsification' if bad else '✅ intactes' }}</span></div>
+<div class="card {{ 'bad' if mismatches else 'good' }}"><small>Cohérence des soldes</small><b>{{ mismatches|length }}</b><span>{{ '❌ solde(s) incohérent(s)' if mismatches else '✅ soldes = historique' }}</span></div>
+<div class="card {{ 'bad' if bad_logs else 'good' }}"><small>Journal de sécurité (chaîne HMAC)</small><b>{{ log_total - bad_logs|length }} / {{ log_total }}</b><span>{{ '❌ journal modifié' if bad_logs else '✅ chaîne intacte' }}</span></div>
+</div>
+
+<div class="card"><h2>Transactions</h2>
+{% if bad %}
+<p><b>❌ {{ bad|length }} transaction(s) falsifiée(s) sur {{ total }} !</b></p>
+<table><tr><th>Date</th><th>Type</th><th>De</th><th>Vers</th><th>Montant</th></tr>
+{% with txs = bad %}{% include "_tx_rows.html" %}{% endwith %}</table>
+{% else %}<p>✅ Les {{ total }} transactions sont intactes.</p>{% endif %}
+</div>
+
+{% if mismatches %}<div class="card"><h2>Soldes incohérents</h2>
+<table><tr><th>Client</th><th>Solde en base</th><th>Solde attendu (historique)</th></tr>
+{% for m in mismatches %}<tr><td>{{ m.username }}</td><td>{{ '%.2f'|format(m.balance) }} DT</td><td>{{ '%.2f'|format(m.expected) }} DT</td></tr>{% endfor %}
+</table></div>{% endif %}
+
+{% if bad_logs %}<div class="card"><h2>Journal de sécurité</h2>
+<p>❌ Lignes dont le HMAC ne correspond plus : {{ bad_logs|join(', ') }}</p></div>{% endif %}
+
+<div class="card"><h2>Comment le tester ?</h2>
+<p>Dans un second terminal, simulez un pirate qui modifie la base :</p>
+<pre>sqlite3 bank.db "UPDATE transactions SET amount=99999 WHERE id=3;"
+sqlite3 bank.db "UPDATE users SET balance=1000000 WHERE username='bob';"
+sqlite3 bank.db "UPDATE security_logs SET details='rien' WHERE id=2;"</pre>
+<p>Rechargez cette page : chaque modification est détectée, car le pirate ne connaît pas la clé HMAC.</p></div>
+{% endblock %}

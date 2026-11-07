@@ -1,0 +1,6 @@
+{% extends "public.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card form-box" style="text-align:center"><h1>{{ code }}</h1><p class="sub">{{ title }}</p>
+<a class="btn" href="{{ url_for('index') }}">Retour à l'accueil</a></div>
+{% endblock %}

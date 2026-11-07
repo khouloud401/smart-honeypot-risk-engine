@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Cryptographie{% endblock %}
+{% block content %}
+<h1>🔐 Démonstration cryptographique</h1>
+<p class="sub">Chiffrement AES-256-GCM, hachage SHA-256, HMAC-SHA256 et signature ECDSA P-256.</p>
+
+<div class="card"><h2>1. Tester avec votre propre texte</h2>
+<form method="post" class="bar"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><div style="flex:1"><label>Texte</label><input name="text" maxlength="500" value="{{ demo.text if demo else 'Virement de 500 DT vers alice' }}"></div>
+<button type="submit">Calculer</button></form>
+{% if demo %}
+<table class="kv">
+<tr><th>AES-256-GCM (nonce + chiffré + tag)</th><td class="mono wrap">{{ demo.cipher }}</td></tr>
+<tr><th>Déchiffrement</th><td>✅ {{ demo.decrypted }}</td></tr>
+<tr><th>Chiffré avec 1 bit modifié</th><td class="mono wrap">{{ demo.tampered }}</td></tr>
+<tr><th>Déchiffrement du chiffré modifié</th><td>{{ "❌ rejeté : tag d'authentification invalide" if demo.tampered_result is none else demo.tampered_result }}</td></tr>
+<tr><th>SHA-256 (empreinte, sans clé)</th><td class="mono wrap">{{ demo.sha256 }}</td></tr>
+<tr><th>HMAC-SHA256 (avec clé secrète)</th><td class="mono wrap">{{ demo.hmac }}</td></tr>
+<tr><th>HMAC du texte + 1 espace</th><td class="mono wrap">{{ demo.hmac_modified }}</td></tr>
+</table>
+<p class="hint">Un seul caractère change → un HMAC complètement différent (effet avalanche). Un nonce aléatoire est tiré à chaque chiffrement : le même texte donne un chiffré différent à chaque fois.</p>
+{% endif %}</div>
+
+<div class="card"><h2>2. RIB chiffrés en base (AES-256-GCM)</h2>
+<p class="hint">Le nom d'utilisateur sert de « donnée associée » (AAD) : copier le RIB chiffré d'un client sur un autre rend le déchiffrement impossible.</p>
+<table><tr><th>Client</th><th>Valeur réellement stockée dans bank.db</th><th>Après déchiffrement</th></tr>
+{% for u in users %}<tr><td>{{ u.username }}</td><td class="mono wrap small-text">{{ u.cipher }}</td>
+<td class="mono">{{ u.clear or '❌ altéré' }}</td></tr>{% endfor %}</table></div>
+
+<div class="card"><h2>3. Signature numérique ECDSA (clé liée à l'appareil)</h2>
+<p>La base ne contient que les <b>clés publiques</b>. La clé privée reste dans le navigateur de l'administrateur, non-extractable.</p>
+{% if keys %}<table><tr><th>Admin</th><th>Appareil</th><th>Empreinte SHA-256</th><th>Dernière utilisation</th></tr>
+{% for k in keys %}<tr><td>{{ k.username }}</td><td>{{ k.label }}</td><td class="mono">{{ k.fingerprint }}</td><td>{{ k.last_used or '—' }}</td></tr>{% endfor %}</table>
+{% else %}<p>Aucune clé enrôlée.</p>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>{% block title %}Banque en ligne{% endblock %}</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+{% block head %}{% endblock %}</head><body>
+<header class="pub-top"><a class="logo" href="{{ url_for('index') }}">🏦 Banque en ligne</a>
+<nav><a href="{{ url_for('login') }}">Connexion</a><a href="{{ url_for('register') }}">Inscription</a></nav></header>
+<div class="pub-main">
+{% with messages = get_flashed_messages(with_categories=true) %}{% for c, m in messages %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+{% block content %}{% endblock %}
+</div></body></html>
