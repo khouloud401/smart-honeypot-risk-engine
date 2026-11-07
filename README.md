@@ -4,7 +4,6 @@
 Une banque en ligne développée avec **Python, Flask et SQLite**. Son idée : **la défense active**.
 Au lieu de seulement bloquer un attaquant, l'application le **laisse entrer dans un faux tableau de bord**, note tout ce qu'il fait, puis **bloque son IP** et **prévient l'administrateur**.
 
-> Projet réalisé par **<ton nom>** et [Khouloud Bahri](https://www.linkedin.com/in/khouloud-bahri-46173937b/) (cybersécurité : authentification et cryptographie).
 
 ---
 
@@ -114,16 +113,14 @@ Après l'expiration du honeypot :
 
 ## 🎬 Démo (scénario simple)
 
-La démo utilise des mots de passe **très simples**, seulement pour le test en laboratoire.
-
 | Étape | Action | Ce qu'on voit |
 |---|---|---|
-| 1 | Se connecter avec le bon mot de passe depuis le navigateur habituel | Vrai dashboard |
-| 2 | Se tromper 3 fois depuis ce même navigateur | Message d'erreur, **pas** de faux dashboard |
-| 3 | Ouvrir un **autre navigateur** (autre IP), se tromper 2 fois, puis mettre le bon mot de passe | Accès normal, **pas** de faux dashboard |
-| 4 | Avec l'attaquant (Kali, IP inconnue), se tromper **3 fois ou plus** | 🍯 Faux dashboard |
-| 5 | Regarder le Centre de sécurité de l'admin | Alertes critiques + rapport d'attaque |
-| 6 | Attendre la fin de la session honeypot | 🚫 IP bloquée, le site ne s'ouvre plus |
+| 1 | Se connecter avec le bon mot de passe depuis le navigateur habituel | ✅ Vrai dashboard |
+| 2 | Se tromper 3 fois depuis ce même navigateur | ⛔ Message d'erreur, **pas** de faux dashboard |
+| 3 | Depuis un **nouveau navigateur ou une nouvelle IP**, se tromper 2 fois puis mettre le bon mot de passe | ⛔ Connexion refusée (appareil à approuver), **pas** de faux dashboard |
+| 4 | Depuis l'attaquant (Kali, IP inconnue), se tromper **3 fois ou plus** | 🍯 Faux dashboard |
+| 5 | Regarder le Centre de sécurité de l'admin | 🚨 Alertes critiques + rapport d'attaque |
+| 6 | Attendre la fin de la session honeypot (5 min) | 🚫 IP bloquée, le site ne s'ouvre plus |
 
 📹 Vidéo : `<lien LinkedIn / YouTube>`
 
@@ -162,16 +159,7 @@ python -m pytest -v
 
 ---
 
-## 🎬 Démo (scénario simple)
 
-| Étape | Action | Ce qu'on voit |
-|---|---|---|
-| 1 | Se connecter avec le bon mot de passe depuis le navigateur habituel | ✅ Vrai dashboard |
-| 2 | Se tromper 3 fois depuis ce même navigateur | ⛔ Message d'erreur, **pas** de faux dashboard |
-| 3 | Depuis un **nouveau navigateur ou une nouvelle IP**, se tromper 2 fois puis mettre le bon mot de passe | ⛔ Connexion refusée (appareil à approuver), **pas** de faux dashboard |
-| 4 | Depuis l'attaquant (Kali, IP inconnue), se tromper **3 fois ou plus** | 🍯 Faux dashboard |
-| 5 | Regarder le Centre de sécurité de l'admin | 🚨 Alertes critiques + rapport d'attaque |
-| 6 | Attendre la fin de la session honeypot (5 min) | 🚫 IP bloquée, le site ne s'ouvre plus |
 
 
 
