@@ -4,7 +4,6 @@
 Une banque en ligne développée avec **Python, Flask et SQLite**. Son idée : **la défense active**.
 Au lieu de seulement bloquer un attaquant, l'application le **laisse entrer dans un faux tableau de bord**, note tout ce qu'il fait, puis **bloque son IP** et **prévient l'administrateur**.
 
-> Projet réalisé par **<ton nom>** et [Khouloud Bahri](https://www.linkedin.com/in/khouloud-bahri-46173937b/) (cybersécurité : authentification et cryptographie).
 
 ---
 
