@@ -122,8 +122,7 @@ Après l'expiration du honeypot :
 | 5 | Regarder le Centre de sécurité de l'admin | 🚨 Alertes critiques + rapport d'attaque |
 | 6 | Attendre la fin de la session honeypot (5 min) | 🚫 IP bloquée, le site ne s'ouvre plus |
 
-📹 Vidéo : `<lien LinkedIn / YouTube>`
-
+📹 Vidéo : [Voir la démo sur LinkedIn](https://lnkd.in/p/eDUygCJZ)
 ## 🚀 Installation
 
 ```bash
