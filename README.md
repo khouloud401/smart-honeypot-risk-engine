@@ -4,6 +4,7 @@
 Une banque en ligne développée avec **Python, Flask et SQLite**. Son idée : **la défense active**.
 Au lieu de seulement bloquer un attaquant, l'application le **laisse entrer dans un faux tableau de bord**, note tout ce qu'il fait, puis **bloque son IP** et **prévient l'administrateur**.
 
+> Projet réalisé par **<ton nom>** et [Khouloud Bahri](https://www.linkedin.com/in/khouloud-bahri-46173937b/) (cybersécurité : authentification et cryptographie).
 
 ---
 
@@ -23,28 +24,29 @@ Dans le faux tableau de bord, l'attaquant ne peut **modifier aucune vraie donné
 
 ## 🧠 Comment le site décide ? (Risk Engine)
 
-À chaque connexion, le site calcule un **score de risque de 0 à 2**. Il regarde 2 signaux :
+Le site regarde **3 choses** à chaque connexion :
 
-| Signal | Points |
-|---|---|
-| 🔢 **3 mots de passe faux ou plus** en 15 minutes | +1 |
-| 🌐 **IP inconnue** ou 🖥️ **navigateur inconnu** pour ce compte | +1 |
+1. 🔢 **Nombre d'erreurs** de mot de passe (3 ou plus = suspect)
+2. 🌐 **L'adresse IP** : connue ou inconnue ?
+3. 🖥️ **Le navigateur / la session** : connu ou inconnu ?
 
-> Un « contexte connu » = l'IP **et** le navigateur ont déjà été utilisés par ce compte.
+> 👉 Le faux dashboard s'ouvre **seulement si les 3 conditions sont réunies en même temps**.
 
-| Score | Situation | Résultat |
-|---|---|---|
-| **0** | Moins de 3 erreurs **et** IP + navigateur connus | ✅ Connexion normale → vrai dashboard |
-| **1** | 3 erreurs ou plus **mais** IP + navigateur connus | ⛔ Message d'erreur normal, **pas de honeypot** |
-| **1** | Moins de 3 erreurs **mais** IP ou navigateur inconnu | ⛔ Connexion refusée (même avec le bon mot de passe) : l'admin doit approuver le nouvel appareil |
-| **2** | 3 erreurs ou plus **et** IP ou navigateur inconnu | 🍯 **Faux dashboard + alerte critique** |
+### Les cas, un par un
 
-**Pourquoi ?** Si tu te trompes dans ton navigateur habituel, c'est sûrement toi qui as oublié ton mot de passe : pas de piège. Mais si un **inconnu** (nouvelle IP ou nouveau navigateur) essaie plusieurs fois, c'est suspect : il est piégé.
+| # | Situation | Faux dashboard ? | Résultat |
+|---|---|---|---|
+| 1 | Vrai utilisateur, **IP connue + navigateur connu**, bon mot de passe | ❌ Non | ✅ Vrai dashboard |
+| 2 | Vrai utilisateur, **IP connue + navigateur connu**, **3 erreurs ou plus** | ❌ Non | Reste sur la page de connexion (message d'erreur) |
+| 3 | Vrai utilisateur sur un **nouveau navigateur + IP inconnue**, **2 erreurs seulement**, puis le **bon** mot de passe | ❌ Non | ✅ Accès normal : il n'a pas atteint 3 erreurs |
+| 4 | **3 erreurs ou plus + IP inconnue + navigateur inconnu** | ✅ **Oui** | 🍯 Faux dashboard |
+
+**Pourquoi ?** Si tu te trompes dans ton propre navigateur, sur ton propre réseau, c'est probablement toi qui as oublié ton mot de passe. Si un **inconnu** (nouvelle IP, nouveau navigateur) essaie plusieurs fois, c'est suspect.
 
 ### Ce qui se passe après l'ouverture du honeypot
 
 ```
-Score 2 (3 erreurs + contexte inconnu)
+3 erreurs + IP inconnue + navigateur inconnu
                   │
                   ▼
    🍯 Faux dashboard (session limitée à 5 minutes)
@@ -86,9 +88,9 @@ Après l'expiration du honeypot :
 - 📄 **Rapports d'attaque** : le rapport #3 indique la date, le compte ciblé, l'IP et le nombre d'événements (8).
 - 🚨 **Alertes** (de la plus grave à la moins grave) :
   - *critique* : « Attaque détectée – honeypot ouvert » (score de risque 2, session factice de 5 minutes)
-  - *élevée* : « Action tentée dans le honeypot » (l'attaquant a essayé de **supprimer un utilisateur**, mais rien n'a changé)
+  - *élevée* : « Action tentée dans le honeypot » (l'attaquant a essayé de **supprimer un utilisateur**, mais l'action n'a rien changé)
   - *critique* : « IP bloquée après honeypot »
-  - *info* : « Nouvel appareil de confiance enrôlé »
+  - *info* : « Nouvel appareil de confiance enrôlé » (navigateur reconnu comme sûr)
 
 > 🔒 Une fois l'IP bloquée, l'attaquant **ne trouve plus le site**. Il ne peut plus y entrer.
 
@@ -99,16 +101,31 @@ Après l'expiration du honeypot :
 | Fonction | Technologie | En mots simples |
 |---|---|---|
 | Mots de passe | **scrypt** | Le mot de passe n'est jamais stocké en clair |
-| Données sensibles (RIB) | **AES-256-GCM** | Les données sont chiffrées |
+| Données sensibles | **AES-256-GCM** | Les données sont chiffrées (illisibles sans clé) |
 | Intégrité | **HMAC-SHA256** | On détecte si une donnée a été modifiée |
-| Appareil de l'admin | **ECDSA** (WebCrypto) | Chaque appareil de confiance est vérifié par une signature |
-| Protection du site | Sessions côté serveur + **CSRF** | Empêche le vol de session et les faux formulaires |
+| Appareils de confiance | **ECDSA** | Chaque navigateur connu est vérifié par une signature |
+| Protection du site | Sessions sécurisées + **CSRF** | Empêche le vol de session et les faux formulaires |
 | Anti brute-force | Verrouillage de compte + blocage d'IP | Stoppe les essais répétés |
-| Supervision | Alertes + rapports d'attaque + journal chaîné | L'admin est toujours prévenu |
+| Supervision | Alertes + rapports d'attaque | L'admin est toujours prévenu |
 
 **Technologies** : Python · Flask · SQLite · OpenSSL · WebCrypto · Pytest · VMware · Kali Linux
 
 ---
+
+## 🎬 Démo (scénario simple)
+
+La démo utilise des mots de passe **très simples**, seulement pour le test en laboratoire.
+
+| Étape | Action | Ce qu'on voit |
+|---|---|---|
+| 1 | Se connecter avec le bon mot de passe depuis le navigateur habituel | Vrai dashboard |
+| 2 | Se tromper 3 fois depuis ce même navigateur | Message d'erreur, **pas** de faux dashboard |
+| 3 | Ouvrir un **autre navigateur** (autre IP), se tromper 2 fois, puis mettre le bon mot de passe | Accès normal, **pas** de faux dashboard |
+| 4 | Avec l'attaquant (Kali, IP inconnue), se tromper **3 fois ou plus** | 🍯 Faux dashboard |
+| 5 | Regarder le Centre de sécurité de l'admin | Alertes critiques + rapport d'attaque |
+| 6 | Attendre la fin de la session honeypot | 🚫 IP bloquée, le site ne s'ouvre plus |
+
+📹 Vidéo : `<lien LinkedIn / YouTube>`
 
 ## 🚀 Installation
 
@@ -156,7 +173,7 @@ python -m pytest -v
 | 5 | Regarder le Centre de sécurité de l'admin | 🚨 Alertes critiques + rapport d'attaque |
 | 6 | Attendre la fin de la session honeypot (5 min) | 🚫 IP bloquée, le site ne s'ouvre plus |
 
-📹 Vidéo : `<lien LinkedIn / YouTube>`
+
 
 ---
 
@@ -191,9 +208,6 @@ Ces scripts servent seulement à **refaire la démo**. Ils ne font pas partie du
 
 Projet **éducatif**, testé en laboratoire. Ne pas utiliser tel quel en production. Ne testez pas ce projet sur un système qui ne vous appartient pas.
 
-## 👥 Auteurs
 
-- **<ton nom>** – [LinkedIn](<ton-lien-linkedin>)
-- **Khouloud Bahri** – [LinkedIn](https://www.linkedin.com/in/khouloud-bahri-46173937b/)
 
 Vos retours sont les bienvenus ! 💻
